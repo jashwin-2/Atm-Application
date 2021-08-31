@@ -1,10 +1,7 @@
 package com.application.atm;
 
 import com.application.atm.data.RepositoryDispatcher;
-
-import java.util.Map;
 import java.util.Map.Entry;
-
 import com.application.atm.data.BankRepository;
 import com.application.atm.data.HDFCRepository;
 import com.application.atm.data.ICICIRepository;
@@ -36,7 +33,7 @@ public class Main {
 		System.out.println(bank.getName()+" Bank Accounts ");
 		for(Entry<Integer, Account> entry : bank.getAccounts().entrySet())
 			System.out.println("Acc No : "+entry.getKey()+"\tName : "+entry.getValue().getAccHolderName()
-					+"\tATM No: "+entry.getValue().getAtmNumber());
+					+"\tATM No: "+entry.getValue().getAtmNumber()+"\tPin : "+entry.getValue().getPin());
 		System.out.println();
 		
 	}

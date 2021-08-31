@@ -41,10 +41,10 @@ public class HDFCUserView implements ATMUserView
 			onExit();
 		}
 		int accountId=services.getAccountNo(atmNumber);
-		System.out.println(accountId);
 		Account account = repository.getAccount(accountId);
 		if (account == null) {
 			out.println("Invalid ATM card");
+			loginMenu();
 		}
 		else
 		{
@@ -89,11 +89,13 @@ public class HDFCUserView implements ATMUserView
 			printUserServices();
 
 			try {
-				choice=UserMenuItems.values()[Integer.parseInt(sc.nextLine())-1];
+				int userInput=Integer.parseInt(sc.nextLine());
+				choice=UserMenuItems.getValue(userInput);
 			}
 			catch(ArrayIndexOutOfBoundsException excep)
 			{
 				System.out.println("Invalid input ");
+				choice=null;
 			}
 
 		}while(choice==null || serviceController(choice));
@@ -194,11 +196,24 @@ public class HDFCUserView implements ATMUserView
 		FundTransfer transfer;
 
 		if(code.equals(currentAccount.getBankName())) 
+		{
+			if(currentAccount.getAccNo()==receiver)
+			{
+				System.out.println("Cant transfer to the same account");
+				return;
+			}
 			transfer = new WithinBank(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver , atm.getName());
 
-		else
-			transfer = new BetweenBanks(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver ,this.services.getRepository(code),atm.getName());
-
+		}
+		else {
+			BankRepository receiverBank=this.services.getRepository(code);
+			if(receiverBank!=null)
+				transfer = new BetweenBanks(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver ,receiverBank,atm.getName());
+			else {
+				System.out.println("Invalid input can't find the bank");
+				return;
+			}
+		}
 		repository.fundTransfer(currentAccount.getAccNo(), transfer, new TransactionListener() {
 			@Override
 			public void onTransactionSucceeded() {
@@ -225,14 +240,17 @@ public class HDFCUserView implements ATMUserView
 	{
 		System.out.println("************* Mini StateMent **********");
 		System.out.println("Description                 "+"     "+"     Credit Or  Debit "+"          "+"CurrBalance");
-		for(Transaction transaction : currentAccount.getTransactions())
+		for(Transaction transaction : services.miniStateMent(acc))
 		{
 			if(transaction instanceof CashTransaction)
 				System.out.println(transaction.getType()+" from "+transaction.getSource()+"\t"+transaction.getAmmount()+"  "+transaction.getType().getResult()+"         "+transaction.getCurrBalanceAfterTransaction());
 			else if(transaction instanceof FundTransfer)
 			{
+				int accNo=0;
 				FundTransfer transfer= (FundTransfer) transaction;
-				System.out.println(transaction.getType()+" "+transfer.getReceiverAccNo()+" from "+transaction.getSource()+"   "+transaction.getAmmount()+"  "+transaction.getType().getResult()+"         "+transaction.getCurrBalanceAfterTransaction());
+				accNo=transfer.getType()==TransactionType.TRANSFERRED ? transfer.getReceiverAccNo() : transfer.getSender();
+				System.out.println(transaction.getType()+" "+accNo+" from "+transaction.getSource()+"   "+transaction.getAmmount()+"  "+transaction.getType().getResult()
+						+"         "+transaction.getCurrBalanceAfterTransaction());
 			}
 		}
 		System.out.println("*****************************************\n");

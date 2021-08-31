@@ -1,7 +1,13 @@
 package com.application.atm.view;
 
+
 public enum UserMenuItems {
-	WITHDRAW,MONEY_TRANSFER,MINI_STATEMENT,EXIT;
+	WITHDRAW(1),MONEY_TRANSFER(2),MINI_STATEMENT(3),EXIT(4);
+
+	public final int num;
+	UserMenuItems(int num) {
+		this.num=num;
+	}
 
 	public String toString()
 	{
@@ -18,4 +24,12 @@ public enum UserMenuItems {
 		}
 		return null;
 	}
+	
+    public static UserMenuItems getValue(int num)
+    {
+    	for(UserMenuItems option : values())
+    		if(option.num==num)
+    			return option;
+		return null;
+    }
 }

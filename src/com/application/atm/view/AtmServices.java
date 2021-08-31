@@ -28,7 +28,6 @@ public class AtmServices
 			int i=0;
 			while( atmNo.length()>i && !Character.isDigit(atmNo.charAt(i)) )
 				code=code+atmNo.charAt(i++);
-			System.out.println("callsed"+code);
 			return dispatcher.getRepository(code);
 		}
 		catch(Exception exception)
@@ -41,8 +40,14 @@ public class AtmServices
 	public int getAccountNo(String atmNo)
 	{
 		int i=0;
+		try {
 		while(!Character.isDigit(atmNo.charAt(i++)));
 		return Integer.parseInt(atmNo.substring(i-1));
+		}
+		catch(Exception exception)
+		{
+			return 0;
+		}
 		
 	}
 	public List<Transaction> miniStateMent(Account acc)

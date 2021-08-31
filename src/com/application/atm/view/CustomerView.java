@@ -26,14 +26,13 @@ public class CustomerView
 
 			if(userInput <= userServicesCount)
 			{
-				choice = UserMenuItems.values()[userInput-1];
+				choice = UserMenuItems.getValue(userInput);
 				if(!userView.serviceController(choice))
 					return;
-				choice = null;
 			}
 
 			else if(userInput <= userServicesCount + CustomerMenuItem.values().length)
-				serviceController(CustomerMenuItem.values()[userInput-userServicesCount-1],currentAccount);
+				serviceController(CustomerMenuItem.getValue(userInput-userServicesCount),currentAccount);
 			else
 				System.out.println("Invalid input ");
 
