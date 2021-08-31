@@ -1,1 +1,1 @@
-# Atm-Application
+# AtmApplication
