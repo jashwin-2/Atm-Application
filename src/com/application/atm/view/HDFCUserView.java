@@ -30,18 +30,20 @@ public class HDFCUserView implements ATMUserView
 	public void loginMenu()
 	{
 		String atmNumber;
+		Account account =null;
 		Scanner sc=new Scanner(System.in);
 		System.out.println("*****WELCOME TO "+atm.getDetails().getBankName()+" ATM "+atm.getDetails().getLocation()+"*********\n");
 		System.out.println("*********Login Menu**********\n");
 		System.out.println("Enter your Atm number Number ");	
 		atmNumber=sc.nextLine();
-		if((repository=services.getRepository(atmNumber)) ==null) 
+		if((repository=services.getRepository(atmNumber)) ==null && services.getAccountNo(atmNumber)!=0) 
 		{
 			System.out.println("Invalid ATM card No");
 			onExit();
 		}
 		int accountId=services.getAccountNo(atmNumber);
-		Account account = repository.getAccount(accountId);
+		account = repository.getAccount(accountId);
+		
 		if (account == null) {
 			out.println("Invalid ATM card");
 			loginMenu();
