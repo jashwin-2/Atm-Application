@@ -54,7 +54,7 @@ public class HDFCUserView implements ATMUserView
 			}
 			catch(Exception excep)
 			{
-				System.out.println("Invalid input "+excep);
+				System.out.println("Invalid input ");
 				choice=null;
 			}
 
