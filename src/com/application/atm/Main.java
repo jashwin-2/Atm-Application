@@ -7,9 +7,9 @@ import com.application.atm.data.HDFCRepository;
 import com.application.atm.data.ICICIRepository;
 import com.application.atm.data.models.Account;
 import com.application.atm.data.models.Atm;
-import com.application.atm.data.models.AtmDetails;
 import com.application.atm.view.AtmServices;
-import com.application.atm.view.HDFCUserView;
+import com.application.atm.view.HDFCATMLoginView;
+
 
 public class Main {
 
@@ -24,9 +24,9 @@ public class Main {
 		printAccountDetails(hdfc);
 		printAccountDetails(icici);
 		
-		AtmDetails hdfcDetails=new AtmDetails(123, "chennai", 25000, "HDFC");
-		Atm hdfcAtm = new Atm(hdfcDetails, new AtmServices(dispatcher,hdfcDetails));
-		new HDFCUserView(new AtmServices(dispatcher, hdfcDetails), hdfcAtm).loginMenu();
+		
+		Atm hdfcAtm = new Atm(1, "Chennai", 50000, "HDFC");
+		new HDFCATMLoginView(hdfc,new AtmServices(dispatcher) , hdfcAtm).start();
 	}
 
 	private static void printAccountDetails(BankRepository bank) {

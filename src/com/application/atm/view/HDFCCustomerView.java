@@ -1,19 +1,18 @@
 package com.application.atm.view;
 
-import java.util.Scanner;
 
+
+import com.application.atm.data.BankRepository;
 import com.application.atm.data.models.Account;
+import com.application.atm.data.models.Atm;
 
 //TODO The hierarchy should be ATMUserView > HDFCUserView > CustomerView. Here CustomerView has-a HDFCUserView instead it should be CustomerView is-a HDFCUserView and the more apt terminology is HDFCATMUserView > HDFCCustomerView
-public class CustomerView 
+public class HDFCCustomerView extends HDFCUserView
 {
-	private HDFCUserView userView;
-	private Scanner sc;
-
-	public CustomerView(HDFCUserView view)
+	
+	public HDFCCustomerView(AtmServices services,Atm atm,Account account,BankRepository repository)
 	{
-		sc=new Scanner(System.in);
-		this.userView=view;
+		super(services,atm,account,repository);
 	}
 
 	public void sessionManager(Account currentAccount)
@@ -21,14 +20,14 @@ public class CustomerView
 		UserMenuItems choice = null;
 		int userInput=0 , userServicesCount = UserMenuItems.values().length;
 		do {
-			userView.printUserServices();
+			super.printUserServices();
 			this.printCustomerServices();
 			userInput=Integer.parseInt(sc.nextLine());
 
 			if(userInput <= userServicesCount)
 			{
 				choice = UserMenuItems.getValue(userInput);
-				if(!userView.serviceController(choice))
+				if(!super.serviceController(choice))
 					return;
 			}
 

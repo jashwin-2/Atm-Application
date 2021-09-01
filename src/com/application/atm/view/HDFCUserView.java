@@ -2,11 +2,8 @@ package com.application.atm.view;
 import java.util.Map.Entry;
 
 import static java.lang.System.out;
-
 import java.util.Scanner;
-
 import com.application.atm.data.BankRepository;
-import com.application.atm.data.RepositoryDispatcher;
 import com.application.atm.data.TransactionListener;
 import com.application.atm.data.models.*;
 import com.application.atm.exception.*;
@@ -20,53 +17,15 @@ public class HDFCUserView implements ATMUserView
 	protected Scanner sc;
 	private AtmServices services;
 
-	public HDFCUserView(AtmServices services,Atm atm) 
+	public HDFCUserView(AtmServices services,Atm atm , Account account , BankRepository repository)
 	{
+		this.repository=repository;
+		this.currentAccount=account;
 		this.atm=atm;
 		this.services = services;
 		sc=new Scanner(System.in);
 	}
-	@Override
-	public void loginMenu()
-	{
-		String atmNumber;
-		Account account =null;
-		Scanner sc=new Scanner(System.in);
-		System.out.println("*****WELCOME TO "+atm.getDetails().getBankName()+" ATM "+atm.getDetails().getLocation()+"*********\n");
-		System.out.println("*********Login Menu**********\n");
-		System.out.println("Enter your Atm number Number ");	
-		atmNumber=sc.nextLine();
-		if((repository=services.getRepository(atmNumber)) ==null && services.getAccountNo(atmNumber)!=0) 
-		{
-			System.out.println("Invalid ATM card No");
-			onExit();
-		}
-		int accountId=services.getAccountNo(atmNumber);
-		account = repository.getAccount(accountId);
-		
-		if (account == null) {
-			out.println("Invalid ATM card");
-			loginMenu();
-		}
-		else
-		{
-			out.println("Please enter your pin");
-			int pin = Integer.parseInt(sc.nextLine());
-			try {
-				currentAccount = repository.authenticate(accountId, pin);
-			} catch (AuthenticationFailedException e) {
-				onAuthenticationFailed(e);
-			}
-			if (currentAccount != null) {
-				if(!currentAccount.getBankName().equals(atm.getDetails().getBankName()))
-					this.sessionManager();
-				else
-					new CustomerView(this).sessionManager(currentAccount);
-				onExit();
 
-			}
-		}
-	}
 	@Override
 	public void onAuthenticationFailed(AuthenticationFailedException e) {
 		if (e instanceof AccountNotFoundException) {
@@ -80,7 +39,6 @@ public class HDFCUserView implements ATMUserView
 	public void onExit() {
 		repository=null;
 		currentAccount=null;
-		loginMenu();
 	}
 
 	@Override
@@ -204,13 +162,13 @@ public class HDFCUserView implements ATMUserView
 				System.out.println("Cant transfer to the same account");
 				return;
 			}
-			transfer = new WithinBank(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver , atm.getName());
+			transfer = new FundTransfer(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver , atm.getAtmName() , FundTransfer.Type.WITHIN_BANK,currentAccount.getBankName());
 
 		}
 		else {
 			BankRepository receiverBank=this.services.getRepository(code);
 			if(receiverBank!=null)
-				transfer = new BetweenBanks(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver ,receiverBank,atm.getName());
+				transfer = new BetweenBanks(amount, TransactionType.TRANSFERRED, currentAccount.getAccNo(),receiver ,receiverBank,atm.getAtmName() ,receiverBank.getName());
 			else {
 				System.out.println("Invalid input can't find the bank");
 				return;
@@ -251,7 +209,7 @@ public class HDFCUserView implements ATMUserView
 				int accNo=0;
 				FundTransfer transfer= (FundTransfer) transaction;
 				accNo=transfer.getType()==TransactionType.TRANSFERRED ? transfer.getReceiverAccNo() : transfer.getSender();
-				System.out.println(transaction.getType()+" "+accNo+" from "+transaction.getSource()+"   "+transaction.getAmmount()+"  "+transaction.getType().getResult()
+				System.out.println(transaction.getType()+" "+transfer.getSecondPartyBank()+accNo+" from "+transaction.getSource()+"   "+transaction.getAmmount()+"  "+transaction.getType().getResult()
 						+"         "+transaction.getCurrBalanceAfterTransaction());
 			}
 		}

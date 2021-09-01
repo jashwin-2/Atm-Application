@@ -7,7 +7,6 @@ import com.application.atm.data.models.CashTransaction;
 import com.application.atm.data.models.FundTransfer;
 import com.application.atm.data.models.Transaction;
 import com.application.atm.data.models.TransactionType;
-import com.application.atm.data.models.WithinBank;
 import com.application.atm.exception.AccountNotFoundException;
 import com.application.atm.exception.AuthenticationFailedException;
 import com.application.atm.exception.InvalidPINException;
@@ -50,7 +49,7 @@ public class BankRepository {
 			if (currentBalance >= transactionAmount) 
 			{
 				if (((CashTransaction) transaction).getAtm()
-						.getDetails().getAvailableAmount() >= transactionAmount)
+						.getAvailableAmount() >= transactionAmount)
 				{
 					account.setBalance(currentBalance - transactionAmount);
 					cashTransaction.getAtm()
@@ -68,56 +67,57 @@ public class BankRepository {
 		}
 	}
 
-	public void fundTransfer(int accountId, Transaction transaction, TransactionListener listener) {
+	public void fundTransfer(int accountId, FundTransfer fundTransfer, TransactionListener listener) {
+	 
 		Account account = getAccount(accountId);
-		float currentBalance , transactionAmount;
-		//TODO scope of this class is only inside else branch. So it can be declared inside the else branch
+		float currentBalance = account.getBalance();
+		float transactionAmount = fundTransfer.getAmmount();
 		int receiverAccNo=0;
+		//TODO scope of this class is only inside else branch. So it can be declared inside the else branch
+		
 		//TODO currentBalance & transactionAmount assignment, error handling are common to both branches. So it can be lifted out of if-else branches. Make it a habit to avoid code repetition even at micro-level
-		if(transaction instanceof WithinBank)
+		if (currentBalance < transactionAmount) 
+			listener.onTransactionFailed(Transaction.Error.INSUFFICIENT_FUNDS);
+
+		if(fundTransfer.getFundTransferType().equals(FundTransfer.Type.WITHIN_BANK))
 		{
-			WithinBank fundTransfer = (WithinBank) transaction;
 			Account receiver = getAccount(fundTransfer.getReceiverAccNo());
-			currentBalance = account.getBalance();
-			transactionAmount = fundTransfer.getAmmount();
 
 			if (receiver == null) {
 				listener.onTransactionFailed(Transaction.Error.ACCOUNT_NOT_FOUND);
-			} else if (currentBalance < transactionAmount) {
-				listener.onTransactionFailed(Transaction.Error.INSUFFICIENT_FUNDS);
 			} else {
 				account.setBalance(currentBalance - transactionAmount);
-				account.addTransactions(transaction);
+				account.addTransactions(fundTransfer);
 				receiver.setBalance(receiver.getBalance() + transactionAmount);
-				FundTransfer receiverTransaction = new FundTransfer(transactionAmount, TransactionType.RECEIVED, accountId , fundTransfer.getReceiverAccNo(),transaction.getSource());
+				FundTransfer receiverTransaction = new FundTransfer(transactionAmount, TransactionType.RECEIVED, accountId ,
+						fundTransfer.getReceiverAccNo(),fundTransfer.getSource(),FundTransfer.Type.WITHIN_BANK,this.getName());
 				receiver.addTransactions(receiverTransaction);
 				listener.onTransactionSucceeded();
 			}
 		}
-		else if(transaction instanceof BetweenBanks)
+		
+		else if(fundTransfer instanceof BetweenBanks)
 		{
-			BetweenBanks fundTransfer = (BetweenBanks) transaction;
+			BetweenBanks betweenBankTransfer=(BetweenBanks)fundTransfer;
 			receiverAccNo = fundTransfer.getReceiverAccNo();
-			currentBalance = account.getBalance();
-			transactionAmount = fundTransfer.getAmmount();
 
-			if (fundTransfer.getReceiverBank().getAccount(receiverAccNo) == null) {
+			if (betweenBankTransfer.getReceiverBank().getAccount(receiverAccNo) == null) {
 				listener.onTransactionFailed(Transaction.Error.ACCOUNT_NOT_FOUND);
-			} else if (currentBalance < transactionAmount) {
-				listener.onTransactionFailed(Transaction.Error.INSUFFICIENT_FUNDS);
 			} else {
 				account.setBalance(currentBalance - transactionAmount);
-				account.addTransactions(transaction);
-				fundTransfer.getReceiverBank().addTransferedMoney(receiverAccNo, transactionAmount, accountId ,transaction.getSource(),listener);
+				account.addTransactions(betweenBankTransfer);
+				betweenBankTransfer.getReceiverBank().addTransferedMoney(betweenBankTransfer,listener,this.getName());
 			}
 		}
 	}
-	
-	void addTransferedMoney(int accNo, float amount ,int sender ,String source, TransactionListener listener) 
+
+
+	void addTransferedMoney(BetweenBanks transfer, TransactionListener listener ,String bankName) 
 	{
-		Account receiver = getAccount(accNo);
-		receiver.setBalance(receiver.getBalance() + amount);
-		receiver.addTransactions( new FundTransfer(amount , TransactionType.RECEIVED, sender , accNo,source));
+		Account receiver = getAccount(transfer.getReceiverAccNo());
+		receiver.setBalance(receiver.getBalance() + transfer.getAmmount());
+		receiver.addTransactions( new FundTransfer(transfer.getAmmount() , TransactionType.RECEIVED, transfer.getSender() , transfer.getReceiverAccNo(),transfer.getSource()
+				, transfer.getFundTransferType(),bankName));
 		listener.onTransactionSucceeded();
 	}
 

@@ -1,38 +1,56 @@
 package com.application.atm.data.models;
 
-import com.application.atm.view.AtmServices;
 
 public class Atm 
 {
 	//TODO there is no major distinction between Atm & AtmDetails. Why two classes ?
-	private AtmDetails details;
-	private String name;
-
-	public Atm(AtmDetails details, AtmServices services)
-	{
-		setName(details.getBankName()+" ATM");
-		this.details=details;
+	private final int atmId;
+	private String location;
+	private float availableAmount;
+	private final String bankName;
+	private final String atmName;
+	
+	public Atm(int atmId, String location, float availableAmount,String bankName) {
+	
+		this.atmId = atmId;
+		this.location = location;
+		this.availableAmount = availableAmount;
+		this.bankName = bankName;
+		this.atmName = bankName+"ATM";
 	}
-
+	
 	public void depositeMoney(float amount)
 	{
-		details.setAvailableAmount(amount+details.getAvailableAmount());
+		setAvailableAmount(amount+getAvailableAmount());
 	}
 	public void withDrawMoney(float amount)
 	{
-		details.setAvailableAmount(details.getAvailableAmount()-amount);
+		setAvailableAmount(getAvailableAmount()-amount);
 	}
 	
-	public AtmDetails getDetails() {
-		return details;
+	public void setLocation(String location) {
+		this.location = location;
+	}
+	public float getAvailableAmount() {
+		return availableAmount;
+	}
+	public void setAvailableAmount(float availableAmount) {
+		this.availableAmount = availableAmount;
+	}
+	public int getAtmId() {
+		return atmId;
+	}
+	public String getBankName() {
+		return bankName;
+	}
+	public String getLocation() {
+		return location;
 	}
 
-	public String getName() {
-		return name;
+	public String getAtmName() {
+		return atmName;
 	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
+	
+	
 
 }

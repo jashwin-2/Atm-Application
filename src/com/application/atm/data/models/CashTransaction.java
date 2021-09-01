@@ -4,7 +4,7 @@ public class CashTransaction extends Transaction{
 	private Atm atm;
 	
 	public CashTransaction(float ammount ,TransactionType type , Atm atm) {
-		super(ammount,type,atm.getName());
+		super(ammount,type,atm.getAtmName());
 		this.atm=atm;
 	}
 

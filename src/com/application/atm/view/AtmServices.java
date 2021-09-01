@@ -8,7 +8,6 @@ import java.util.Map.Entry;
 import com.application.atm.data.BankRepository;
 import com.application.atm.data.RepositoryDispatcher;
 import com.application.atm.data.models.Account;
-import com.application.atm.data.models.AtmDetails;
 import com.application.atm.data.models.Transaction;
 
 public class AtmServices 
@@ -16,7 +15,7 @@ public class AtmServices
 	private RepositoryDispatcher dispatcher;
 
 //TODO AtmDetails unused ?
-	public AtmServices(RepositoryDispatcher dispatcher , AtmDetails details) 
+	public AtmServices(RepositoryDispatcher dispatcher) 
 	{
 		this.dispatcher = dispatcher;
 	}
