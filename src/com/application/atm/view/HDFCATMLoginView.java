@@ -36,9 +36,10 @@ public class HDFCATMLoginView {
 		System.out.println("*********Login Menu**********\n");
 		System.out.println("Enter your Atm number Number ");	
 		atmNumber=sc.nextLine();
-		if((repository=services.getRepository(atmNumber)) ==null && services.getAccountNo(atmNumber)!=0) 
+		if((repository=services.getRepository(atmNumber)) ==null || services.getAccountNo(atmNumber)==0) 
 		{
 			System.out.println("Invalid ATM card No");
+			loginMenu();
 		}
 		int accountId=services.getAccountNo(atmNumber);
 		account = repository.getAccount(accountId);

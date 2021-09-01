@@ -52,9 +52,9 @@ public class HDFCUserView implements ATMUserView
 				int userInput=Integer.parseInt(sc.nextLine());
 				choice=UserMenuItems.getValue(userInput);
 			}
-			catch(ArrayIndexOutOfBoundsException excep)
+			catch(Exception excep)
 			{
-				System.out.println("Invalid input ");
+				System.out.println("Invalid input "+excep);
 				choice=null;
 			}
 
@@ -104,9 +104,18 @@ public class HDFCUserView implements ATMUserView
 
 	public void withdraw(Account acc)
 	{
+		float amount=0;
 		System.out.println("Enter the ammount you want to widhdraw");
-		float amount=Float.parseFloat(sc.nextLine());
-
+		try {
+			amount=Float.parseFloat(sc.nextLine());
+			if(amount<=0)
+				throw new Exception();
+		}
+		catch(Exception exp)
+		{
+			System.out.println("Invalid input");
+			withdraw(acc);
+		}
 		CashTransaction transaction = new CashTransaction(amount, TransactionType.WITHDRAW, atm );
 		repository.cashTransaction(currentAccount.getAccNo(), transaction, new TransactionListener() {
 			@Override
@@ -137,22 +146,30 @@ public class HDFCUserView implements ATMUserView
 
 	public void moneyTransfer(Account acc)
 	{
-		int receiver;
+		int receiver=0;
+		float amount=0;
 		String code = currentAccount.getBankName();
 		System.out.println("\nEnter your choice ");
 		System.out.println("1 -->  To " + currentAccount.getBankName()+" Accounts \n2 --> To Other Bank Accounts");
-		if(Integer.parseInt(sc.nextLine())==2)
-		{
-			printAvailbleBanksCode();
-			System.out.println("PRESS Q To Cancel\nEnter receivers Bank Code \\ Q (Quit)");
-			code=sc.nextLine();
-			if(code.equalsIgnoreCase("Q"))
-				return;
+		try {
+			if(Integer.parseInt(sc.nextLine())==2)
+			{
+				printAvailbleBanksCode();
+				System.out.println("PRESS Q To Cancel\nEnter receivers Bank Code \\ Q (Quit)");
+				code=sc.nextLine();
+				if(code.equalsIgnoreCase("Q"))
+					return;
+			}
+			System.out.println("Enter receivers Account Number ");
+			receiver=Integer.parseInt(sc.nextLine());
+			System.out.println("Enter the ammount you want to transfer");
+			amount=Float.parseFloat(sc.nextLine());
 		}
-		System.out.println("Enter receivers Account Number ");
-		receiver=Integer.parseInt(sc.nextLine());
-		System.out.println("Enter the ammount you want to transfer");
-		float amount=Float.parseFloat(sc.nextLine());
+		catch(Exception exp)
+		{
+			System.out.println("Invalid input ");
+			moneyTransfer(acc);
+		}
 		FundTransfer transfer;
 
 		if(code.equals(currentAccount.getBankName())) 
