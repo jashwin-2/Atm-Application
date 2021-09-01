@@ -4,6 +4,7 @@ import com.application.atm.view.AtmServices;
 
 public class Atm 
 {
+	//TODO there is no major distinction between Atm & AtmDetails. Why two classes ?
 	private AtmDetails details;
 	private String name;
 

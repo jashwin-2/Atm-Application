@@ -1,5 +1,5 @@
 package com.application.atm.data.models;
-
+//TODO WithinBank overrides nothing. purpose of this classs ?
 public class WithinBank extends FundTransfer{
 
 

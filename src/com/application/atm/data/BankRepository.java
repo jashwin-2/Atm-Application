@@ -71,7 +71,9 @@ public class BankRepository {
 	public void fundTransfer(int accountId, Transaction transaction, TransactionListener listener) {
 		Account account = getAccount(accountId);
 		float currentBalance , transactionAmount;
+		//TODO scope of this class is only inside else branch. So it can be declared inside the else branch
 		int receiverAccNo=0;
+		//TODO currentBalance & transactionAmount assignment, error handling are common to both branches. So it can be lifted out of if-else branches. Make it a habit to avoid code repetition even at micro-level
 		if(transaction instanceof WithinBank)
 		{
 			WithinBank fundTransfer = (WithinBank) transaction;

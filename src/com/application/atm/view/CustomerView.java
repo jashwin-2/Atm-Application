@@ -4,6 +4,7 @@ import java.util.Scanner;
 
 import com.application.atm.data.models.Account;
 
+//TODO The hierarchy should be ATMUserView > HDFCUserView > CustomerView. Here CustomerView has-a HDFCUserView instead it should be CustomerView is-a HDFCUserView and the more apt terminology is HDFCATMUserView > HDFCCustomerView
 public class CustomerView 
 {
 	private HDFCUserView userView;
