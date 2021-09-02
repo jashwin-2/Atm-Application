@@ -22,8 +22,14 @@ public class HDFCCustomerView extends HDFCUserView
 		do {
 			super.printUserServices();
 			this.printCustomerServices();
+			try {
 			userInput=Integer.parseInt(sc.nextLine());
-
+			}
+			catch(NumberFormatException excep)
+			{
+				System.out.println("Invalid input");
+				sessionManager(currentAccount);
+			}
 			if(userInput <= userServicesCount)
 			{
 				choice = UserMenuItems.getValue(userInput);
@@ -44,7 +50,14 @@ public class HDFCCustomerView extends HDFCUserView
 		if(choice.equals(CustomerMenuItem.CHANGE_MOBILE_NO))	
 		{
 			System.out.println("Enter your new mobile number");
+			try {
 			currentAccount.setMobileNo(Long.parseLong(sc.nextLine()));
+			}
+			catch(NumberFormatException exp)
+			{
+				System.out.println("Invalid input ");
+				serviceController(choice,currentAccount);
+			}
 		}
 	}
 
